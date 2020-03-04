@@ -1,3 +1,5 @@
+require 'colorize'
+
 class XmlParser
   def initialize(input)
     @input = input
@@ -9,45 +11,52 @@ class XmlParser
 
   def prolog_at_start?
     puts @input[0]
-    if /^<\?xml(\s*[a-z]*=\'.*\'\s*)*\?>$/ === @input[0]
-      puts '[TEST PASSED] : Prolog found'
+    if /^<\?xml(\s*[a-z]*=\".*\"\s*)*\?>$/ === @input[0]
+      puts '[TEST PASSED] : '.green + 'Prolog found'
       return true
     end
-    puts 'Warning: No well formed prolog at the start of the file'
+    puts '[WARNING] : '.yellow + 'No well formed prolog at the start of the file'
     false
   end
 
-  def well_formed_attributes?(line, ln)
+  def well_formed_node?(line, line_number)
+    if /^\s*<\s*\/?\s*[A-Za-z]\s*.*>/ === line
+      puts '[TEST PASSED] : '.green + 'Recognizable node structure'
+      true
+    else
+      puts '[ERROR] : '.red + " line #{line_number} : Unrecognizable node structure"
+      false
+    end
+  end
+
+  def well_formed_attributes?(line, line_number)
     if /([A-Za-z]+=\'.+\')+/ === line
-      puts '[TEST PASSED] : All attributes are well formed'
+      puts '[TEST PASSED] : '.green + 'All attributes are well formed'
       return true
     end
-    puts "[ERROR] line #{ln} : No well formed Attribute"
+    puts '[ERROR] : '.red + " line #{line_number} : No well formed attribute"
     false
   end
 
   def single_node?(line)
-    if /^<\/?[A-Za-z]+\s*>/ === line
-      puts '[SINGLE NODE]'
-      return true
-    end
-    # puts 'NOT A SINGLE NODE'"[ERROR] line #{ln} : No well formed Attribute"
+    return true if /^<\/?[A-Za-z]+\s*>/ === line
     false
   end
 
-  def check_closing_tag_inline(line, ln)
+  def check_closing_tag_inline(line, line_number)
     node_name = get_node_name(line)
     node_name_last = get_node_name_last(line)
     if node_name == node_name_last
-      puts '[TEST PASSED] Matching closing backet'
+      puts '[TEST PASSED] : '.green + 'Matching closing bracket'
     else
-      puts "[ERROR] line #{ln} : No matching closing bracket"
+      puts '[CRITICAL ERROR] : '.red + "line #{line_number} : No matching closing bracket"
     end
   end
 
   def attributes?(line)
     if /^\s*<[A-Za-z]+\s+.+>$/ === line
       return true
+
     end
     false
   end
@@ -60,47 +69,48 @@ class XmlParser
     line[/<\s*\/\s*([A-Za-z]+).*/, 1]
   end
 
-  def add_node_to_buffer(line, ln)
+  def add_node_to_buffer(line, line_number)
     @multi_line_buffer << get_node_name(line)
     @root ||= get_node_name(line)
-    puts "[CRITICAL ERROR] line #{ln} : Only one root is allowed" if @root_closed
+    puts '[CRITICAL ERROR] : '.red + "line #{line_number} : Only one root is allowed" if @root_closed
   end
 
   def remove_node_to_buffer(line)
     @multi_line_buffer.delete(get_node_name_last(line))
-    if get_node_name_last(line) == @root
-      @root_closed = true
-      @root_count += 1
-    end
+
+    return unless get_node_name_last(line) == @root
+
+    @root_closed = true
+    @root_count += 1
   end
 
-  def adm_multi_line_node(line, ln)
+  def adm_multi_line_node(line, line_number)
     if get_node_name(line) && get_node_name(line) != ''
-      add_node_to_buffer(line, ln)
+      add_node_to_buffer(line, line_number)
     elsif get_node_name_last(line) && get_node_name_last(line) != ''
       remove_node_to_buffer(line)
     end
   end
 
   def validate_root
-    puts "[CRITICAL ERROR] File needs to have 1 root node" if @root_count != 1
-    puts "[CRITICAL ERROR] Closing tag missing for root node" unless @root_closed
+    puts '[CRITICAL ERROR] : '.red + 'File needs to have 1 root node' if @root_count != 1
+    puts '[CRITICAL ERROR] : '.red + 'Closing tag missing for root node' unless @root_closed
   end
 
   def validate
     prolog_at_start?
-
     1.upto(@input.length - 1) do |i|
       line = @input[i]
-      puts line
-      if single_node?(line)
-        adm_multi_line_node(line, i)
-      else
-        check_closing_tag_inline(line,i)
-        well_formed_attributes?(line,i) if attributes?(line)
+      puts "line #{i} : #{line}"
+      if well_formed_node?(line, i)
+        if single_node?(line)
+          adm_multi_line_node(line, i)
+        else
+          check_closing_tag_inline(line, i)
+          well_formed_attributes?(line, i) if attributes?(line)
+        end
       end
     end
-    p @multi_line_buffer
     validate_root
   end
 end
