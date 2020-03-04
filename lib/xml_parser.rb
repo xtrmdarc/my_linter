@@ -15,9 +15,8 @@ class XmlParser
     return false
   end
 
-  def well_formed_attributes?(line= nil)
-    puts @input[1]
-    if /([a-z]+=\".+\")+/ === @input[1]
+  def well_formed_attributes?(line)
+    if /([A-Za-z]+=\".+\")+/ === line
       puts "[TEST PASSED] : All attributes are well formed"
       return true
     end
@@ -25,9 +24,8 @@ class XmlParser
     return false
   end
 
-  def single_node?(line=nil)
-    puts @input[2]
-    if /^<[a-z]+\s*>/ === @input[2]
+  def single_node?(line)
+    if /^<\/?[A-Za-z]+\s*>/ === line
       puts "[SINGLE NODE]"
       return true
     end
@@ -35,9 +33,20 @@ class XmlParser
     false
   end
 
-  def has_attributes?(line=nil)
-    puts @input[2]
-    if /^<[a-z]+\s+.+>/ === @input[2]
+  def check_closing_tag_inline(line)
+    node_name = get_node_name(line)
+    node_name_last = get_node_name_last(line)
+    puts node_name
+    puts node_name_last
+    if node_name == node_name_last
+      puts '[TEST PASSED] Matching closing backet'
+    else
+      puts '[ERROR] No matching closing bracket'
+    end
+  end
+
+  def has_attributes?(line)
+    if /^\s*<[A-Za-z]+\s+.+>$/ === line
       puts "[IT HAS ATTRUBTES]"
       return true
     end
@@ -45,14 +54,27 @@ class XmlParser
     false
   end
 
-  def get_node_name
-    puts @input[2]
-    return @input[2][/^<\s*([a-z]+).*/, 1]
+  def get_node_name(line)
+    return line[/^\s*<\s*([A-Za-z]+).*/, 1]
   end
 
-  def parse
-    @input.each_with_index do |el, i|
-      
+  def get_node_name_last(line)
+    return line[/<\s*\/\s*([A-Za-z]+).*/, 1]
+  end
+
+  def validate
+    prolog_at_start?
+
+    1.upto(@input.length - 1) do |i|
+      line = @input[i]
+      puts line
+      if single_node?(line)
+
+      else
+        check_closing_tag_inline(line)
+        well_formed_attributes?(line) if has_attributes?(line)   
+      end
     end
   end
+
 end

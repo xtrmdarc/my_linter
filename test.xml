@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<test hola "a">
-<attr>
-<attr>
-
-</test>
+<note>
+  <to asd >Tove</to>
+  <from>Jani</from>
+  <heading>Reminder</heading>
+  <body>Don't forget me this weekend!</body>
+</note>
