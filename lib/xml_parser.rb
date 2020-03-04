@@ -63,9 +63,13 @@ class XmlParser
   end
 
   def adm_multi_line_node(line)
-
+    if get_node_name(line) &&  get_node_name(line) != ''
+      @multi_line_buffer << get_node_name(line)
+    elsif get_node_name_last(line) && get_node_name_last(line) != ''
+      @multi_line_buffer.delete(get_node_name_last(line))
+    end
   end
-  
+
   def validate
     prolog_at_start?
 
@@ -73,11 +77,7 @@ class XmlParser
       line = @input[i]
       puts line
       if single_node?(line)
-        if get_node_name(line) &&  get_node_name(line) != ''
-          @multi_line_buffer << get_node_name(line)
-        elsif get_node_name_last(line) && get_node_name_last(line) != ''
-          @multi_line_buffer.delete(get_node_name_last(line))
-        end
+        adm_multi_line_node(line)
       else
         check_closing_tag_inline(line)
         well_formed_attributes?(line) if has_attributes?(line)   
