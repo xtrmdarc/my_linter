@@ -1,9 +1,8 @@
 #!/usr/bin/env ruby
 require './lib/xml_parser'
+require './lib/file_reader'
 
-file = File.open("./test.xml")
-content = file.readlines.map(&:chomp)
-file.close
+content = FileReader.get_content_from_file('./test.xml')
 
 xml_parser = XmlParser.new content
 
