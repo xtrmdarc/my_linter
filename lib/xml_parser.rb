@@ -17,12 +17,12 @@ class XmlParser
     false
   end
 
-  def well_formed_attributes?(line)
+  def well_formed_attributes?(line, ln)
     if /([A-Za-z]+=\'.+\')+/ === line
       puts '[TEST PASSED] : All attributes are well formed'
       return true
     end
-    puts '[ERROR] : No well formed Attribute'
+    puts "[ERROR] line #{ln} : No well formed Attribute"
     false
   end
 
@@ -31,28 +31,24 @@ class XmlParser
       puts '[SINGLE NODE]'
       return true
     end
-    puts 'NOT A SINGLE NODE'
+    # puts 'NOT A SINGLE NODE'"[ERROR] line #{ln} : No well formed Attribute"
     false
   end
 
-  def check_closing_tag_inline(line)
+  def check_closing_tag_inline(line, ln)
     node_name = get_node_name(line)
     node_name_last = get_node_name_last(line)
-    puts node_name
-    puts node_name_last
     if node_name == node_name_last
       puts '[TEST PASSED] Matching closing backet'
     else
-      puts '[ERROR] No matching closing bracket'
+      puts "[ERROR] line #{ln} : No matching closing bracket"
     end
   end
 
   def attributes?(line)
     if /^\s*<[A-Za-z]+\s+.+>$/ === line
-      puts '[IT HAS ATTRUBTES]'
       return true
     end
-    puts 'NO ATTRIBUTES'
     false
   end
 
@@ -64,10 +60,10 @@ class XmlParser
     line[/<\s*\/\s*([A-Za-z]+).*/, 1]
   end
 
-  def add_node_to_buffer(line)
+  def add_node_to_buffer(line, ln)
     @multi_line_buffer << get_node_name(line)
     @root ||= get_node_name(line)
-    puts '[CRITICAL ERROR] Only one root is allowed' if @root_closed
+    puts "[CRITICAL ERROR] line #{ln} : Only one root is allowed" if @root_closed
   end
 
   def remove_node_to_buffer(line)
@@ -78,9 +74,9 @@ class XmlParser
     end
   end
 
-  def adm_multi_line_node(line)
+  def adm_multi_line_node(line, ln)
     if get_node_name(line) && get_node_name(line) != ''
-      add_node_to_buffer(line)
+      add_node_to_buffer(line, ln)
     elsif get_node_name_last(line) && get_node_name_last(line) != ''
       remove_node_to_buffer(line)
     end
@@ -98,10 +94,10 @@ class XmlParser
       line = @input[i]
       puts line
       if single_node?(line)
-        adm_multi_line_node(line)
+        adm_multi_line_node(line, i)
       else
-        check_closing_tag_inline(line)
-        well_formed_attributes?(line) if attributes?(line)
+        check_closing_tag_inline(line,i)
+        well_formed_attributes?(line,i) if attributes?(line)
       end
     end
     p @multi_line_buffer
