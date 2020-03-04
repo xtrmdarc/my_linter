@@ -27,6 +27,21 @@ class XmlParser
     puts '[CRITICAL ERROR] : '.red + "Open node on #{@multi_line_buffer}" unless @multi_line_buffer.empty?
   end
 
+  def add_node_to_buffer(line, line_number)
+    @multi_line_buffer << get_node_name(line)
+    @root ||= get_node_name(line)
+    puts '[CRITICAL ERROR] : '.red + "line #{line_number} : Only one root is allowed" if @root_closed
+  end
+
+  def remove_node_to_buffer(line)
+    @multi_line_buffer.delete(get_node_name_last(line))
+
+    return unless get_node_name_last(line) == @root
+
+    @root_closed = true
+    @root_count += 1
+  end
+
   def adm_multi_line_node(line, line_number)
     if get_node_name(line) && get_node_name(line) != ''
       add_node_to_buffer(line, line_number)
@@ -67,7 +82,7 @@ class XmlParser
   end
 
   def single_node?(line)
-    return true if /^\s*<\/?[A-Za-z]+\s*>$/ === line
+    return true if /^\s*<\/?[A-Za-z]+\s*([A-Za-z]+=\".+\")*>$/ === line
 
     false
   end
@@ -84,21 +99,6 @@ class XmlParser
 
   def get_node_name_last(line)
     line[/<\s*\/\s*([A-Za-z]+).*/, 1]
-  end
-
-  def add_node_to_buffer(line, line_number)
-    @multi_line_buffer << get_node_name(line)
-    @root ||= get_node_name(line)
-    puts '[CRITICAL ERROR] : '.red + "line #{line_number} : Only one root is allowed" if @root_closed
-  end
-
-  def remove_node_to_buffer(line)
-    @multi_line_buffer.delete(get_node_name_last(line))
-
-    return unless get_node_name_last(line) == @root
-
-    @root_closed = true
-    @root_count += 1
   end
 
   def validate
