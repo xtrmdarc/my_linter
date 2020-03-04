@@ -63,7 +63,7 @@ class XmlParser
   end
 
   def well_formed_node?(line, line_number)
-    if /^\s*<\s*\/?\s*[A-Za-z]\s*.*>$/ === line
+    if %r{^\s*<\s*/?\s*[A-Za-z]\s*.*>$} === line
       puts '[TEST PASSED] : '.green + 'Recognizable node structure'
       true
     else
@@ -82,7 +82,7 @@ class XmlParser
   end
 
   def single_node?(line)
-    return true if /^\s*<\/?[A-Za-z]+\s*([A-Za-z]+=\".+\")*>$/ === line
+    return true if %r{^\s*</?[A-Za-z]+\s*([A-Za-z]+=\".+\")*>$} === line
 
     false
   end
@@ -98,7 +98,7 @@ class XmlParser
   end
 
   def get_node_name_last(line)
-    line[/<\s*\/\s*([A-Za-z]+).*/, 1]
+    line[%r{<\s*/\s*([A-Za-z]+).*}, 1]
   end
 
   def validate

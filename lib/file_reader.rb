@@ -1,8 +1,6 @@
-
-class FileReader < File
-
+class FileReader
   def self.get_content_from_file(path)
-    file = open(path)
+    file = File.open(path)
     content = file.readlines.map(&:chomp)
     file.close
     content
