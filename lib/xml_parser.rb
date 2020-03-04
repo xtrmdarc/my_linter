@@ -12,7 +12,7 @@ class XmlParser
       return true
     end
     puts "Warning: No well formed prolog at the start of the file"
-    return false
+    false
   end
 
   def well_formed_attributes?(line)
@@ -62,6 +62,10 @@ class XmlParser
     return line[/<\s*\/\s*([A-Za-z]+).*/, 1]
   end
 
+  def adm_multi_line_node(line)
+
+  end
+  
   def validate
     prolog_at_start?
 
@@ -69,12 +73,17 @@ class XmlParser
       line = @input[i]
       puts line
       if single_node?(line)
-
+        if get_node_name(line) &&  get_node_name(line) != ''
+          @multi_line_buffer << get_node_name(line)
+        elsif get_node_name_last(line) && get_node_name_last(line) != ''
+          @multi_line_buffer.delete(get_node_name_last(line))
+        end
       else
         check_closing_tag_inline(line)
         well_formed_attributes?(line) if has_attributes?(line)   
       end
     end
+    p @multi_line_buffer
   end
 
 end
