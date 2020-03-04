@@ -102,8 +102,9 @@ class XmlParser
   end
 
   def validate
-    prolog_at_start?
-    1.upto(@input.length - 1) do |i|
+    start = 0
+    start = 1 if prolog_at_start?
+    start.upto(@input.length - 1) do |i|
       line = @input[i]
       puts "line #{i + 1} : #{line}"
       if well_formed_node?(line, i + 1)
