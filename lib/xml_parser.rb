@@ -9,39 +9,7 @@ class XmlParser
     @root = nil
   end
 
-  def prolog_at_start?
-    puts @input[0]
-    if /^<\?xml(\s*[a-z]*=\".*\"\s*)*\?>$/ === @input[0]
-      puts '[TEST PASSED] : '.green + 'Prolog found'
-      return true
-    end
-    puts '[WARNING] : '.yellow + 'No well formed prolog at the start of the file'
-    false
-  end
-
-  def well_formed_node?(line, line_number)
-    if /^\s*<\s*\/?\s*[A-Za-z]\s*.*>/ === line
-      puts '[TEST PASSED] : '.green + 'Recognizable node structure'
-      true
-    else
-      puts '[ERROR] : '.red + " line #{line_number} : Unrecognizable node structure"
-      false
-    end
-  end
-
-  def well_formed_attributes?(line, line_number)
-    if /([A-Za-z]+=\'.+\')+/ === line
-      puts '[TEST PASSED] : '.green + 'All attributes are well formed'
-      return true
-    end
-    puts '[ERROR] : '.red + " line #{line_number} : No well formed attribute"
-    false
-  end
-
-  def single_node?(line)
-    return true if /^<\/?[A-Za-z]+\s*>/ === line
-    false
-  end
+  private
 
   def check_closing_tag_inline(line, line_number)
     node_name = get_node_name(line)
@@ -53,11 +21,60 @@ class XmlParser
     end
   end
 
-  def attributes?(line)
-    if /^\s*<[A-Za-z]+\s+.+>$/ === line
-      return true
+  def validate_multilineal
+    puts '[CRITICAL ERROR] : '.red + 'File needs to have 1 root node' if @root_count != 1
+    puts '[CRITICAL ERROR] : '.red + 'Closing tag missing for root node' unless @root_closed
+    puts '[CRITICAL ERROR] : '.red + "Open node on #{@multi_line_buffer}" unless @multi_line_buffer.empty?
+  end
 
+  def adm_multi_line_node(line, line_number)
+    if get_node_name(line) && get_node_name(line) != ''
+      add_node_to_buffer(line, line_number)
+    elsif get_node_name_last(line) && get_node_name_last(line) != ''
+      remove_node_to_buffer(line)
     end
+  end
+
+  public
+
+  def prolog_at_start?
+    puts @input[0]
+    if /^<\?xml(\s*[a-z]*=\".*\"\s*)*\?>$/ === @input[0]
+      puts '[TEST PASSED] : '.green + 'Prolog found'
+      return true
+    end
+    puts '[WARNING] : '.yellow + 'No well formed prolog at the start of the file'
+    false
+  end
+
+  def well_formed_node?(line, line_number)
+    if /^\s*<\s*\/?\s*[A-Za-z]\s*.*>$/ === line
+      puts '[TEST PASSED] : '.green + 'Recognizable node structure'
+      true
+    else
+      puts '[ERROR] : '.red + " line #{line_number} : Unrecognizable node structure"
+      false
+    end
+  end
+
+  def well_formed_attributes?(line, line_number)
+    if /([A-Za-z]+=\".+\")+/ === line
+      puts '[TEST PASSED] : '.green + 'All attributes are well formed'
+      return true
+    end
+    puts '[ERROR] : '.red + " line #{line_number} : No well formed attribute"
+    false
+  end
+
+  def single_node?(line)
+    return true if /^\s*<\/?[A-Za-z]+\s*>$/ === line
+
+    false
+  end
+
+  def attributes?(line)
+    return true if /^\s*<[A-Za-z]+\s+.+>$/ === line
+
     false
   end
 
@@ -84,33 +101,20 @@ class XmlParser
     @root_count += 1
   end
 
-  def adm_multi_line_node(line, line_number)
-    if get_node_name(line) && get_node_name(line) != ''
-      add_node_to_buffer(line, line_number)
-    elsif get_node_name_last(line) && get_node_name_last(line) != ''
-      remove_node_to_buffer(line)
-    end
-  end
-
-  def validate_root
-    puts '[CRITICAL ERROR] : '.red + 'File needs to have 1 root node' if @root_count != 1
-    puts '[CRITICAL ERROR] : '.red + 'Closing tag missing for root node' unless @root_closed
-  end
-
   def validate
     prolog_at_start?
     1.upto(@input.length - 1) do |i|
       line = @input[i]
-      puts "line #{i} : #{line}"
-      if well_formed_node?(line, i)
+      puts "line #{i + 1} : #{line}"
+      if well_formed_node?(line, i + 1)
         if single_node?(line)
-          adm_multi_line_node(line, i)
+          adm_multi_line_node(line, i + 1)
         else
-          check_closing_tag_inline(line, i)
-          well_formed_attributes?(line, i) if attributes?(line)
+          check_closing_tag_inline(line, i + 1)
+          well_formed_attributes?(line, i + 1) if attributes?(line)
         end
       end
     end
-    validate_root
+    validate_multilineal
   end
 end
