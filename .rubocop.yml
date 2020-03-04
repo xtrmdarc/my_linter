@@ -18,7 +18,8 @@ Metrics/BlockLength:
   ExcludedMethods: ['describe']
   Max: 30
 
-
+Style/CaseEquality:
+  Enabled: false
 Style/Documentation:
   Enabled: false
 Style/ClassAndModuleChildren:

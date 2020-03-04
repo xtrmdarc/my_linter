@@ -1,35 +1,37 @@
 class XmlParser
-  
   def initialize(input)
     @input = input
     @multi_line_buffer = []
+    @root_count = 0
+    @root_closed = false
+    @root = nil
   end
-  
+
   def prolog_at_start?
     puts @input[0]
-    if /^<\?xml(\s*[a-z]*=\".*\"\s*)*\?>$/ === @input[0]
-      puts "[TEST PASSED] : Prolog found"
+    if /^<\?xml(\s*[a-z]*=\'.*\'\s*)*\?>$/ === @input[0]
+      puts '[TEST PASSED] : Prolog found'
       return true
     end
-    puts "Warning: No well formed prolog at the start of the file"
+    puts 'Warning: No well formed prolog at the start of the file'
     false
   end
 
   def well_formed_attributes?(line)
-    if /([A-Za-z]+=\".+\")+/ === line
-      puts "[TEST PASSED] : All attributes are well formed"
+    if /([A-Za-z]+=\'.+\')+/ === line
+      puts '[TEST PASSED] : All attributes are well formed'
       return true
     end
-    puts "[ERROR] : No well formed Attribute"
-    return false
+    puts '[ERROR] : No well formed Attribute'
+    false
   end
 
   def single_node?(line)
     if /^<\/?[A-Za-z]+\s*>/ === line
-      puts "[SINGLE NODE]"
+      puts '[SINGLE NODE]'
       return true
     end
-    puts "NOT A SINGLE NODE"
+    puts 'NOT A SINGLE NODE'
     false
   end
 
@@ -45,29 +47,48 @@ class XmlParser
     end
   end
 
-  def has_attributes?(line)
+  def attributes?(line)
     if /^\s*<[A-Za-z]+\s+.+>$/ === line
-      puts "[IT HAS ATTRUBTES]"
+      puts '[IT HAS ATTRUBTES]'
       return true
     end
-    puts "NO ATTRIBUTES"
+    puts 'NO ATTRIBUTES'
     false
   end
 
   def get_node_name(line)
-    return line[/^\s*<\s*([A-Za-z]+).*/, 1]
+    line[/^\s*<\s*([A-Za-z]+).*/, 1]
   end
 
   def get_node_name_last(line)
-    return line[/<\s*\/\s*([A-Za-z]+).*/, 1]
+    line[/<\s*\/\s*([A-Za-z]+).*/, 1]
+  end
+
+  def add_node_to_buffer(line)
+    @multi_line_buffer << get_node_name(line)
+    @root ||= get_node_name(line)
+    puts '[CRITICAL ERROR] Only one root is allowed' if @root_closed
+  end
+
+  def remove_node_to_buffer(line)
+    @multi_line_buffer.delete(get_node_name_last(line))
+    if get_node_name_last(line) == @root
+      @root_closed = true
+      @root_count += 1
+    end
   end
 
   def adm_multi_line_node(line)
-    if get_node_name(line) &&  get_node_name(line) != ''
-      @multi_line_buffer << get_node_name(line)
+    if get_node_name(line) && get_node_name(line) != ''
+      add_node_to_buffer(line)
     elsif get_node_name_last(line) && get_node_name_last(line) != ''
-      @multi_line_buffer.delete(get_node_name_last(line))
+      remove_node_to_buffer(line)
     end
+  end
+
+  def validate_root
+    puts "[CRITICAL ERROR] File needs to have 1 root node" if @root_count != 1
+    puts "[CRITICAL ERROR] Closing tag missing for root node" unless @root_closed
   end
 
   def validate
@@ -80,10 +101,10 @@ class XmlParser
         adm_multi_line_node(line)
       else
         check_closing_tag_inline(line)
-        well_formed_attributes?(line) if has_attributes?(line)   
+        well_formed_attributes?(line) if attributes?(line)
       end
     end
     p @multi_line_buffer
+    validate_root
   end
-
 end
