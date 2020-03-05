@@ -14,10 +14,11 @@ This version of the XML Begginer linter reads the ./test.xml file included in th
 - There is not a root node
 - There is more than one root node
 - There is a malformed node
-- There is an unrecognizable node (asd <w >s )
-- There is no matching tag for a given node ( <order>val</adorder> )
+- There is an unrecognizable node (`asd <w >s`)
+- There is no matching tag for a given node ( `<order>val</adorder> `)
 - There is no closing tag for a multiline node
-- There is no well formed attributes (<order attr='val">)
+- There is no well formed attributes (`<order attr='val">`)
+- An inline node has empty value (`<order></order>`)
 
 The base test.xml file the program reads is included in the project in the root directory folder, however you can change its content to suit your testing needs. Here is the base content of the test.xml file: 
 
