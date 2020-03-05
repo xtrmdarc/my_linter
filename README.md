@@ -73,10 +73,6 @@ Once you have the files on your computer, go on the command line and navigate to
 - Run the linter directly from the executable file, using the command `./bin/main.rb`
 - Pass the main.rb file to the ruby interpreter, using the command `ruby bin/main.rb`
 
-# Live version
-
-<!-- [Link to the live version](https://tic-tac-toe-1.ivandiaz5.repl.run/) -->
-
 # Requirements
 
 - Ruby > 2.5
