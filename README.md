@@ -7,7 +7,7 @@ This a ruby based linter for XML files. It provides feedback about syntaxis erro
 
 # How it works
 
-This version of the XML Begginer linter reads the ./test.xml file included in the project. This XML file linter will catch and display the following syntax errors in the console :
+**This version of the XML Begginer linter reads the ./test.xml file included in the project.** This XML file linter will catch and display the following syntax errors in the console :
 
 - There is no well formed PROLOG in the first line of the file
 - There is a PROLOG, but it's not well formed (a '?>' closing tag is missing)
@@ -32,6 +32,35 @@ The base test.xml file the program reads is included in the project in the root 
     <body>Don't forget me this weekend!</body>
   </note>
   ```
+
+## Examples
+
+- Case : Root node closing tag missing
+  ```xml
+  <?xml version="1.0" encoding="UTF-8"?>
+  <note>
+    <to asd="s" >Tove</to>
+    <from>Jani</from>
+    <heading>Reminder</heading>
+    <body>Don't forget me this weekend!</body>
+  ```
+  - Linter output: 
+
+    ![Linter](./assets/root_node_missing_closing_tag.png)
+
+- Case : Node opening tag and closing tag mismatch
+  ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <note>
+      <to asd="s" >Tove</to>
+      <from>Jani</fromda>
+      <heading>Reminder</heading>
+      <body>Don't forget me this weekend!</body>
+    </note>
+  ```
+  - Linter output: 
+
+    ![Linter](./assets/no_matching_tags.png)
 
 # How to run the linter
 First of all, you need to have the linter files in your computer. You can get them either cloning this repository, or downloading its contents directly

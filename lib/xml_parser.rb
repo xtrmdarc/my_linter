@@ -16,9 +16,9 @@ class XmlParser
     node_name_last = get_node_name_last(line)
     check_node_value?(line, line_number)
     if node_name == node_name_last
-      puts '[TEST PASSED] : '.green + 'Matching closing bracket'
+      puts '[TEST PASSED] : '.green + 'Matching closing tag'
     else
-      puts '[CRITICAL ERROR] : '.red + "line #{line_number} : No matching closing bracket"
+      puts '[CRITICAL ERROR] : '.red + "line #{line_number} : No matching closing tag"
     end
   end
 
