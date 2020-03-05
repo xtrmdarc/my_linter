@@ -127,4 +127,18 @@ describe XmlParser do
       expect(sample_parser.get_node_name_last(content_to_parse)).to eql('orders')
     end
   end
+
+  describe '#check_node_value?' do
+    it 'returns false if detects an inline node with empty value' do
+      content_to_parse = '<orders></orders>'
+
+      expect(sample_parser.check_node_value?(content_to_parse, 0)).not_to eql(true)
+    end
+
+    it 'returns true if detects an inline node with value' do
+      content_to_parse = '<orders>val</orders>'
+
+      expect(sample_parser.check_node_value?(content_to_parse, 0)).to eql(true)
+    end
+  end
 end

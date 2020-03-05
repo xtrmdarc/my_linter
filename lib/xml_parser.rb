@@ -14,6 +14,7 @@ class XmlParser
   def check_closing_tag_inline(line, line_number)
     node_name = get_node_name(line)
     node_name_last = get_node_name_last(line)
+    check_node_value?(line, line_number)
     if node_name == node_name_last
       puts '[TEST PASSED] : '.green + 'Matching closing bracket'
     else
@@ -99,6 +100,14 @@ class XmlParser
 
   def get_node_name_last(line)
     line[%r{<\s*/\s*([A-Za-z]+).*}, 1]
+  end
+
+  def check_node_value?(line, line_number)
+    if %r{^\s*<\s*[A-Za-z]+\s*>\s*<\s*/[A-Za-z]+\s*>\s*$} === line
+      puts '[WARNING] : '.yellow + " line #{line_number} : No value for node detected"
+      return false
+    end
+    true
   end
 
   def validate
