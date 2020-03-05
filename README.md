@@ -17,7 +17,7 @@ This a ruby based linter for XML files. It provides feedback about syntaxis erro
 - There is an unrecognizable node (`asd <w >s`)
 - There is no matching tag for a given node ( `<order>val</adorder> `)
 - There is no closing tag for a multiline node
-- There is no well formed attributes (`<order attr='val">`)
+- There are no well formed attributes (`<order attr='val">`)
 - An inline node has empty value (`<order></order>`)
 
 The base test.xml file the program reads is included in the project in the root directory folder, however you can change its content to suit your testing needs. Here is the base content of the test.xml file: 
