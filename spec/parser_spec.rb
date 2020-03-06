@@ -1,5 +1,5 @@
-require './lib/xml_parser'
-require './lib/file_reader'
+require_relative '../lib/xml_parser.rb'
+require_relative '../lib/file_reader.rb'
 
 describe XmlParser do
   let(:test_path) { './test_files/' }

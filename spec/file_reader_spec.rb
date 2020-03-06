@@ -1,4 +1,4 @@
-require './lib/file_reader'
+require_relative '../lib/file_reader.rb'
 
 describe FileReader do
   let(:test_path) { './test_files/' }

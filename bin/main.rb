@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
-require './lib/xml_parser'
-require './lib/file_reader'
+require_relative '../lib/xml_parser.rb'
+require_relative '../lib/file_reader.rb'
 
 content = FileReader.get_content_from_file('./test.xml')
 
