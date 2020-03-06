@@ -1,6 +1,8 @@
 require 'colorize'
 
 class XmlParser
+  attr_reader :multi_line_buffer
+
   def initialize(input)
     @input = input
     @multi_line_buffer = []
