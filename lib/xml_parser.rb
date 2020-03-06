@@ -59,7 +59,7 @@ class XmlParser
       puts '[TEST PASSED] : '.green + 'Prolog found'
       true
     else
-      puts '[WARNING] : '.yellow + 'No well formed prolog at the start of the file'
+      puts '[ERROR] : '.red + 'No well formed prolog at the start of the file'
       false
     end
   end
