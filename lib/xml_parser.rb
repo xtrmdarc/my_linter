@@ -57,10 +57,11 @@ class XmlParser
     puts @input[0]
     if /^<\?xml(\s*[a-z]*=\".*\"\s*)*\?>$/ === @input[0]
       puts '[TEST PASSED] : '.green + 'Prolog found'
-      return true
+      true
+    else
+      puts '[WARNING] : '.yellow + 'No well formed prolog at the start of the file'
+      false
     end
-    puts '[WARNING] : '.yellow + 'No well formed prolog at the start of the file'
-    false
   end
 
   def well_formed_node?(line, line_number)
@@ -76,10 +77,11 @@ class XmlParser
   def well_formed_attributes?(line, line_number)
     if /([A-Za-z]+=\".+\")+/ === line
       puts '[TEST PASSED] : '.green + 'All attributes are well formed'
-      return true
+       true
+    else
+      puts '[ERROR] : '.red + " line #{line_number} : No well formed attribute"
+      false
     end
-    puts '[ERROR] : '.red + " line #{line_number} : No well formed attribute"
-    false
   end
 
   def single_node?(line)
@@ -105,9 +107,10 @@ class XmlParser
   def check_node_value?(line, line_number)
     if %r{^\s*<\s*[A-Za-z]+\s*>\s*<\s*/[A-Za-z]+\s*>\s*$} === line
       puts '[WARNING] : '.yellow + " line #{line_number} : No value for node detected"
-      return false
+      false
+    else
+      true
     end
-    true
   end
 
   def validate
