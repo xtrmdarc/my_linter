@@ -77,7 +77,7 @@ class XmlParser
   def well_formed_attributes?(line, line_number)
     if /([A-Za-z]+=\".+\")+/ === line
       puts '[TEST PASSED] : '.green + 'All attributes are well formed'
-       true
+      true
     else
       puts '[ERROR] : '.red + " line #{line_number} : No well formed attribute"
       false
